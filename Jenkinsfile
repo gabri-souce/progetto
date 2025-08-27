@@ -15,7 +15,8 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build(DOCKER_IMAGE, './docker')
+                    // MODIFICA: Cambiato il path del Dockerfile
+                    sh 'docker build -t gabri-souce/otel-lab-app-python:latest -f app/Dockerfile .'
                 }
             }
         }
