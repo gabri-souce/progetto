@@ -14,7 +14,6 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                // Build con il tuo username corretto
                 sh 'docker build -t gabrisource/otel-lab-app-python:latest -f app/Dockerfile ./app'
             }
         }
@@ -26,6 +25,20 @@ pipeline {
                         docker.image(DOCKER_IMAGE).push()
                     }
                 }
+            }
+        }
+
+        stage('Install Helm') {
+            steps {
+                sh '''
+                # Installa Helm
+                curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+                chmod 700 get_helm.sh
+                ./get_helm.sh
+                
+                # Verifica l'installazione
+                helm version
+                '''
             }
         }
 
