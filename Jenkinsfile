@@ -15,8 +15,8 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // SOLUZIONE CORRETTA: usa la directory 'app' come contesto di build
-                    sh 'docker build -t gabri-souce/otel-lab-app-python:latest -f app/Dockerfile ./app'
+                    // CONTESTO CORRETTO: usa la cartella otel-lab/app come contesto
+                    sh 'docker build -t gabri-souce/otel-lab-app-python:latest -f otel-lab/app/Dockerfile ./otel-lab/app'
                 }
             }
         }
