@@ -12,36 +12,9 @@ pipeline {
             }
         }
 
-        stage('Explore Repository Structure') {
-            steps {
-                sh '''
-                echo "=== STRUTTURA COMPLETA DEL REPOSITORY ==="
-                ls -la
-                echo ""
-                echo "=== CONTENUTO DELLE SOTTOCARTELLE ==="
-                find . -type d -name "*app*" -o -name "*otel*" -o -name "*docker*" | head -20
-                echo ""
-                echo "=== CERCO DOCKERFILE ==="
-                find . -name "Dockerfile" -type f
-                echo ""
-                echo "=== CERCO REQUIREMENTS.TXT ==="
-                find . -name "requirements.txt" -type f
-                '''
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
-                script {
-                    // Prima verifichiamo la struttura, poi costruiamo
-                    def dockerfilePath = sh(script: 'find . -name "Dockerfile" -type f | head -1', returnStdout: true).trim()
-                    def contextPath = dockerfilePath.replace('/Dockerfile', '')
-                    
-                    echo "Trovato Dockerfile in: ${dockerfilePath}"
-                    echo "Context path: ${contextPath}"
-                    
-                    sh "docker build -t gabri-souce/otel-lab-app-python:latest -f ${dockerfilePath} ${contextPath}"
-                }
+                sh 'docker build -t gabri-souce/otel-lab-app-python:latest -f app/Dockerfile ./app'
             }
         }
 
