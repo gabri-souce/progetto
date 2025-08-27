@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "gabri-source/otel-lab-app-python:latest"
+        DOCKER_IMAGE = "gabrisource/otel-lab-app-python:latest"
     }
 
     stages {
@@ -14,7 +14,8 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t gabri-souce/otel-lab-app-python:latest -f app/Dockerfile ./app'
+                // Build con il tuo username corretto
+                sh 'docker build -t gabrisource/otel-lab-app-python:latest -f app/Dockerfile ./app'
             }
         }
 
@@ -32,7 +33,7 @@ pipeline {
             steps {
                 sh '''
                 helm upgrade --install flask-app ./helm/flask-app \
-                    --set image.repository=gabri-souce/otel-lab-app-python \
+                    --set image.repository=gabrisource/otel-lab-app-python \
                     --set image.tag=latest
                 '''
             }
