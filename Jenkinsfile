@@ -31,10 +31,11 @@ pipeline {
         stage('Install Helm') {
             steps {
                 sh '''
-                # Installa Helm
-                curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
-                chmod 700 get_helm.sh
-                ./get_helm.sh
+                # Installa Helm senza sudo
+                curl -fsSL -o helm.tar.gz https://get.helm.sh/helm-v3.14.0-linux-amd64.tar.gz
+                tar -zxvf helm.tar.gz
+                mv linux-amd64/helm /usr/local/bin/helm
+                chmod +x /usr/local/bin/helm
                 
                 # Verifica l'installazione
                 helm version
@@ -47,7 +48,9 @@ pipeline {
                 sh '''
                 helm upgrade --install flask-app ./helm/flask-app \
                     --set image.repository=gabrisource/otel-lab-app-python \
-                    --set image.tag=latest
+                    --set image.tag=latest \
+                    --namespace default \
+                    --create-namespace
                 '''
             }
         }
