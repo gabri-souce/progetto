@@ -7,8 +7,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copia il codice dell'app
-COPY app/app.py .
-COPY app/requirements.txt .
+COPY app.py .
+COPY requirements.txt .
 EXPOSE 5000
 
 CMD ["python", "app.py"]
