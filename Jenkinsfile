@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "gabri-souce/otel-lab-app-python:latest"
+        DOCKER_IMAGE = "gabri-source/otel-lab-app-python:latest"
     }
 
     stages {
