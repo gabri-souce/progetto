@@ -3,6 +3,8 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "gabrisource/otel-lab-app-python:latest"
+        // Usa il kubeconfig di default del sistema
+        KUBECONFIG = "${env.HOME}/.kube/config"
     }
 
     stages {
@@ -28,43 +30,42 @@ pipeline {
             }
         }
 
+        stage('Setup Kubernetes Context') {
+            steps {
+                sh '''
+                # Verifica che kubectl e helm siano disponibili
+                echo "📦 Tool disponibili:"
+                which kubectl || echo "kubectl non trovato"
+                which helm || echo "helm non trovato"
+                
+                # Imposta il contesto Kind corretto
+                kubectl config use-context kind-otel-lab
+                
+                echo "🎯 Contesto attuale:"
+                kubectl config current-context
+                
+                echo "🖥️  Nodi del cluster:"
+                kubectl get nodes
+                '''
+            }
+        }
+
         stage('Deploy Helm Chart') {
             steps {
-                script {
-                    // Usa il kubeconfig di Kind otel-lab
-                    withCredentials([file(credentialsId: 'kind-otel-lab-config', variable: 'KUBECONFIG_FILE')]) {
-                        sh '''
-                        # Imposta il kubeconfig per Kind
-                        export KUBECONFIG=${KUBECONFIG_FILE}
-                        
-                        # Verifica il contesto (dovrebbe essere kind-otel-lab)
-                        echo "🎯 Contesto Kubernetes in uso:"
-                        kubectl config current-context
-                        
-                        echo "🖥️  Verifica nodi del cluster:"
-                        kubectl get nodes
-                        
-                        echo "📦 Verifica namespaces:"
-                        kubectl get namespaces
-                        
-                        # Verifica che Helm funzioni
-                        helm version
-                        
-                        # Deploy dell'applicazione con timeout
-                        helm upgrade --install flask-app ./helm/flask-app \
-                            --set image.repository=gabrisource/otel-lab-app-python \
-                            --set image.tag=latest \
-                            --namespace default \
-                            --create-namespace \
-                            --wait \
-                            --timeout 300s
-                        
-                        echo "✅ Deploy completato!"
-                        echo "📋 Verifica pod:"
-                        kubectl get pods -n default
-                        '''
-                    }
-                }
+                sh '''
+                # Deploy dell'applicazione usando il contesto già configurato
+                helm upgrade --install flask-app ./helm/flask-app \
+                    --set image.repository=gabrisource/otel-lab-app-python \
+                    --set image.tag=latest \
+                    --namespace default \
+                    --create-namespace \
+                    --wait \
+                    --timeout 300s
+                
+                echo "✅ Deploy completato!"
+                echo "📋 Pod in esecuzione:"
+                kubectl get pods -n default -w --timeout=30s
+                '''
             }
         }
     }
